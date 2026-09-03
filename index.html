@@ -738,8 +738,7 @@
           'p1 = ' + plan.p1 + '   p2 = ' + plan.p2 + '\n' +
           'α = ' + plan.alpha + (plan.comparisons > 1 ? '   α_adj = α / ' + plan.comparisons + ' = ' + plan.alphaAdj : '') + '\n' +
           'sided = ' + plan.sided + '   z_α = ' + plan.zAlpha + '   z_β = ' + plan.zBeta + '\n' +
-          'n_raw = ' + plan.nRaw.toFixed(3) + '   n_per = ceil(n_raw) = ' + plan.nPerVariant + '\n' +
-          'Pocock-like inflation on n = 1.44  (not a sequential design)';
+          'n_raw = ' + plan.nRaw.toFixed(3) + '   n_per = ceil(n_raw) = ' + plan.nPerVariant;
 
         lastSummary = ns.formatPlan(plan, { bonferroni: true });
       }
