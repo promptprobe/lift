@@ -5,166 +5,257 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>lift · plan the test before you peek</title>
   <meta name="description" content="See how many visitors you need before an A/B test is real, and what peeking costs you." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
   <style>
+    /*
+     * Palette from Financial Times Origami o-colors (core brand),
+     * @financial-times/o-colors v6.7.0 src/scss/_palette.scss
+     * https://github.com/Financial-Times/origami/blob/main/components/o-colors/src/scss/_palette.scss
+     *
+     * Tokens used (oColorsByName):
+     *   paper     #FFF1E5  page background  (Origami page-background)
+     *   wheat     #F2DFCE  field / result well
+     *   black     #000000  ink
+     *   white     #FFFFFF  input fill
+     *   claret    #990F3D  primary action + peeking warning
+     *   claret-50 #800D33  primary hover (o-colors claret tone 50)
+     *   teal      #0D7680  duration / ok
+     *   oxford    #0F5499  links
+     *   jade      #00994D  success flash
+     *   crimson   #CC0000  hard error
+     *
+     * Mixes (o-colors default palette mixes of black over paper):
+     *   black-60  #66605C  mute ink — 60% black / 40% paper
+     *   line      #D8CDC2  15% black over paper
+     *             (between published black-10 #E6D9CE and black-20 #CCC1B7)
+     *
+     * Origami ft-pink is #FCD0B1 (logo). Page UI uses paper, not ft-pink.
+     *
+     * Type ramp (px):
+     *   wordmark h1     42  Source Serif 4  400
+     *   lede            17  Plex            400  mute  max-width 40em
+     *   section labels  11  Plex            500  tracking 0.12em  ink
+     *   field labels    13  Plex            500  ink
+     *   hints           12  Plex            400  mute
+     *   result .v       38  Source Serif 4  600  tabular-nums
+     *   buttons         13  Plex            500
+     *   footer          12  Plex            400  mute
+     *   body / UI       15  Plex            400  ink
+     */
     :root {
       color-scheme: light;
-      --bg: #f6f1e8;
-      --paper: #fffdf8;
-      --ink: #1d1a16;
-      --mute: #6d6458;
-      --line: #e4d8c4;
-      --accent: #e23d2e;
-      --gold: #ffd36a;
-      --ok: #1f7a4d;
-      --warnbg: #fbece9;
-      --chip: #f3e4d2;
-      --chipink: #6a3b16;
-      --shadow: 0 10px 30px rgba(29, 26, 22, 0.06);
+      --paper: #FFF1E5;
+      --wheat: #F2DFCE;
+      --black: #000000;
+      --white: #FFFFFF;
+      --claret: #990F3D;
+      --claret-50: #800D33;
+      --teal: #0D7680;
+      --oxford: #0F5499;
+      --jade: #00994D;
+      --crimson: #CC0000;
+      --ink: var(--black);
+      --mute: #66605C;
+      --line: #D8CDC2;
+      --serif: "Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif;
+      --sans: "IBM Plex Sans", Helvetica, Arial, sans-serif;
+      --r: 0px;
+      --r-field: 2px;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
     body {
       min-height: 100vh;
-      font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font: 15px/1.5 var(--sans);
       color: var(--ink);
-      background:
-        radial-gradient(920px 420px at 8% -12%, #ffe7a8 0%, transparent 55%),
-        radial-gradient(640px 280px at 100% 0%, #ffd5cc 0%, transparent 46%),
-        var(--bg);
-      padding: 28px 18px 72px;
+      background: var(--paper);
+      padding: 20px 16px 56px;
+      border-top: 3px solid var(--black);
     }
     .studio { max-width: 920px; margin: 0 auto; }
-    header h1 {
-      font-size: 32px;
-      letter-spacing: -0.04em;
-      margin: 0 0 6px;
-      font-weight: 750;
+    header {
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--line);
     }
-    .lede { color: var(--mute); margin: 0 0 18px; max-width: 46rem; }
-    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+    header h1 {
+      font-family: var(--serif);
+      font-size: 42px;
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1.1;
+      margin: 0 0 8px;
+    }
+    .lede {
+      font-size: 17px;
+      line-height: 1.45;
+      color: var(--mute);
+      margin: 0 0 14px;
+      max-width: 40em;
+    }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
     .chip, .seg button, .kseg button {
       appearance: none;
-      border: 1px solid var(--line);
-      background: var(--chip);
-      color: var(--chipink);
-      border-radius: 999px;
-      padding: 6px 12px;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 700;
+      -webkit-appearance: none;
+      border: 0;
+      background: var(--wheat);
+      color: var(--ink);
+      border-radius: 0;
+      padding: 6px 10px;
+      font: 13px/1.2 var(--sans);
+      font-weight: 500;
       cursor: pointer;
     }
-    .chip:hover, .seg button:hover, .kseg button:hover { border-color: #c9a227; }
+    .chip:hover, .seg button:hover, .kseg button:hover {
+      background: var(--line);
+    }
     .chip.on, .seg button.on, .kseg button.on {
-      background: var(--ink);
-      color: #fff8ee;
-      border-color: var(--ink);
+      background: var(--black);
+      color: var(--paper);
     }
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 20px;
+      gap: 0 32px;
       align-items: start;
     }
     @media (max-width: 800px) {
-      .layout { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; gap: 0; }
     }
     .panel {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px 18px 16px;
-      box-shadow: var(--shadow);
+      background: transparent;
+      border: 0;
+      border-radius: var(--r);
+      padding: 0;
+      box-shadow: none;
+    }
+    .panel + .panel {
+      border-left: 1px solid var(--line);
+      padding-left: 32px;
+    }
+    @media (max-width: 800px) {
+      .panel + .panel {
+        border-left: 0;
+        padding-left: 0;
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+        margin-top: 20px;
+      }
     }
     .panel h2 {
-      margin: 0 0 12px;
-      font-size: 13px;
-      letter-spacing: 0.04em;
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--mute);
+      color: var(--ink);
     }
-    form { display: grid; gap: 14px; }
-    label.field {
+    form { display: grid; gap: 12px; }
+    .field, label.field {
       display: grid;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 700;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
     }
-    .hint { font-weight: 500; color: var(--mute); font-size: 12px; }
+    .field > span:not(.hint) {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .hint { font-weight: 400; color: var(--mute); font-size: 12px; }
     input[type="number"] {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font: inherit;
-      background: #fff;
+      border-radius: var(--r-field);
+      padding: 8px 10px;
+      font: 15px/1.3 var(--sans);
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      background: var(--white);
     }
-    input[type="number"]:focus, .seg button:focus-visible, .kseg button:focus-visible,
-    .chip:focus-visible, button:focus-visible, .toggle input:focus-visible {
-      outline: 3px solid var(--gold);
-      border-color: #c9a227;
+    input[type="number"]:focus,
+    .seg button:focus-visible,
+    .kseg button:focus-visible,
+    .chip:focus-visible,
+    button:focus-visible,
+    .toggle input:focus-visible,
+    details.formula summary:focus-visible {
+      outline: 2px solid var(--black);
+      outline-offset: 2px;
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
-    .seg, .kseg { display: flex; flex-wrap: wrap; gap: 6px; }
+    .seg, .kseg { display: flex; flex-wrap: wrap; gap: 4px; }
     .kseg button { min-width: 42px; text-align: center; }
     .toggle {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      font-weight: 700;
-      font-size: 14px;
-      padding: 10px 12px;
-      border: 1px dashed var(--line);
-      border-radius: 12px;
-      background: #fff;
+      font-weight: 500;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 0;
+      border-left: 4px solid transparent;
+      border-radius: var(--r);
+      background: var(--wheat);
     }
     .toggle.on {
-      border-color: var(--accent);
-      background: var(--warnbg);
+      border-left-color: var(--claret);
     }
-    .toggle input { margin-top: 3px; accent-color: var(--accent); }
-    .toggle span { font-weight: 500; color: var(--mute); font-size: 12px; display: block; }
+    .toggle input { margin-top: 3px; accent-color: var(--claret); }
+    .toggle span { font-weight: 400; color: var(--mute); font-size: 12px; display: block; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .primary, .ghost {
+      appearance: none;
+      -webkit-appearance: none;
       border: 0;
-      border-radius: 999px;
-      padding: 10px 16px;
-      font: inherit;
-      font-weight: 700;
+      border-radius: var(--r-field);
+      padding: 8px 14px;
+      font: 13px/1.2 var(--sans);
+      font-weight: 500;
       cursor: pointer;
     }
-    .primary { background: var(--accent); color: #fff; }
-    .primary:disabled { background: #8a8178; cursor: not-allowed; }
-    .ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-    .ghost.ok { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .primary { background: var(--claret); color: var(--white); }
+    .primary:hover { background: var(--claret-50); }
+    .primary:disabled { background: var(--mute); cursor: not-allowed; }
+    .ghost { background: var(--wheat); color: var(--ink); }
+    .ghost.ok { background: var(--jade); color: var(--white); }
     .cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 1px;
+      background: var(--line);
       margin-bottom: 14px;
     }
     .card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 12px 10px;
+      background: var(--wheat);
+      border: 0;
+      border-radius: var(--r);
+      padding: 10px 12px 8px;
+      box-shadow: none;
     }
     .card .k {
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+      font-weight: 500;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--mute);
     }
     .card .v {
-      font-size: 26px;
-      font-weight: 750;
-      letter-spacing: -0.03em;
+      font-family: var(--serif);
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: 0;
       font-variant-numeric: tabular-nums;
-      line-height: 1.2;
+      line-height: 1.15;
       margin-top: 2px;
     }
+    #days { color: var(--teal); }
     .card .s { font-size: 12px; color: var(--mute); }
     .meta {
       display: grid;
@@ -173,84 +264,101 @@
       color: var(--mute);
       margin: 0 0 14px;
     }
-    .meta b { color: var(--ink); font-weight: 700; }
+    .meta b { color: var(--ink); font-weight: 500; }
     .note {
       font-size: 13px;
-      background: #f7efe3;
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      background: var(--wheat);
+      border: 0;
+      border-radius: var(--r);
       padding: 10px 12px;
       margin: 0 0 14px;
       color: var(--ink);
+      box-shadow: none;
     }
     .err {
-      background: var(--warnbg);
-      border: 1px solid #f0b8b0;
-      color: #7a1f1a;
-      border-radius: 12px;
-      padding: 12px;
-      font-size: 14px;
+      background: var(--wheat);
+      border: 0;
+      border-left: 4px solid var(--crimson);
+      border-radius: var(--r);
+      color: var(--crimson);
+      padding: 10px 12px;
+      font-size: 13px;
+      box-shadow: none;
     }
-    .chart-wrap { margin: 4px 0 14px; }
+    .chart-wrap {
+      margin: 4px 0 14px;
+      border-radius: var(--r);
+    }
     .chart-wrap figcaption {
       font-size: 12px;
       color: var(--mute);
       margin: 0 0 6px;
-      font-weight: 600;
+      font-weight: 400;
     }
-    svg.spark { width: 100%; height: auto; display: block; }
+    svg.spark { width: 100%; height: auto; display: block; border-radius: var(--r); }
     .sens {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
       margin: 0 0 14px;
+      font-variant-numeric: tabular-nums;
     }
     .sens th, .sens td {
       text-align: right;
       padding: 5px 6px;
       border-bottom: 1px solid var(--line);
-      font-variant-numeric: tabular-nums;
     }
     .sens th:first-child, .sens td:first-child { text-align: left; }
-    .sens th { color: var(--mute); font-weight: 600; }
-    .sens tr.cur td { font-weight: 800; background: #fff6d6; }
+    .sens th { color: var(--mute); font-weight: 500; }
+    .sens tr.cur td { font-weight: 500; background: var(--wheat); }
     .peek {
-      border-radius: 14px;
-      padding: 12px 14px;
-      border: 1px solid var(--line);
-      background: #fff;
+      border-radius: var(--r);
+      padding: 10px 0 12px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: transparent;
       margin: 0 0 14px;
+      box-shadow: none;
     }
     .peek.warn {
-      background: var(--warnbg);
-      border-color: #f0b8b0;
+      background: var(--wheat);
+      border-top: 0;
+      border-left: 4px solid var(--claret);
+      padding: 10px 12px;
     }
-    .peek h3 { margin: 0 0 6px; font-size: 14px; }
+    .peek.warn h3 { color: var(--claret); }
+    .peek h3 { margin: 0 0 6px; font-size: 13px; font-weight: 500; }
     .peek p { margin: 0 0 8px; font-size: 13px; color: var(--mute); }
     .peek p:last-child { margin-bottom: 0; }
-    .peek b { color: var(--ink); }
+    .peek b { color: var(--ink); font-weight: 500; }
     details.formula {
       font-size: 13px;
       color: var(--mute);
       margin: 0 0 8px;
     }
-    details.formula summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+    details.formula summary { cursor: pointer; font-weight: 500; color: var(--ink); }
     details.formula pre {
       white-space: pre-wrap;
-      background: #1d1a16;
-      color: #fff8ee;
-      border-radius: 12px;
-      padding: 12px;
-      font-size: 12px;
+      background: var(--wheat);
+      color: var(--ink);
+      border-radius: var(--r);
+      padding: 10px 12px;
+      font: 12px/1.45 var(--sans);
+      font-variant-numeric: tabular-nums;
       overflow: auto;
     }
     footer {
-      margin-top: 22px;
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
       color: var(--mute);
       font-size: 12px;
     }
-    footer a { color: inherit; }
+    footer a { color: var(--oxford); }
     .hidden { display: none !important; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
@@ -279,7 +387,7 @@
             </label>
             <div>
               <div class="field">
-                <span style="font-size:14px;font-weight:700">MDE type</span>
+                <span>MDE type</span>
                 <span class="hint">Relative is the usual marketer input.</span>
                 <div class="seg" id="mdeType" data-name="mdeType" role="group" aria-label="MDE type">
                   <button type="button" data-value="relative" class="on">Relative %</button>
@@ -504,7 +612,7 @@
           for (var k in attrs) n.setAttribute(k, attrs[k]);
           return n;
         }
-        svg.appendChild(el('rect', { x: 0, y: 0, width: 440, height: 168, fill: '#fff' }));
+        svg.appendChild(el('rect', { x: 0, y: 0, width: 440, height: 168, fill: '#FFF1E5' }));
         if (!points.length) return;
 
         var L = 52, R = 14, T = 12, B = 30;
@@ -521,12 +629,13 @@
           var yy = T + (1 - ticks[t]) * ih;
           svg.appendChild(el('line', {
             x1: L, x2: L + iw, y1: yy, y2: yy,
-            stroke: '#e4d8c4', 'stroke-width': 1
+            stroke: '#D8CDC2', 'stroke-width': 1
           }));
           var lab = el('text', {
-            x: L - 6, y: yy + 3, fill: '#6d6458',
+            x: L - 6, y: yy + 3, fill: '#66605C',
             'font-size': 10, 'text-anchor': 'end',
-            'font-family': 'system-ui, sans-serif'
+            'font-family': '"IBM Plex Sans", Helvetica, Arial, sans-serif',
+            'font-variant': 'tabular-nums'
           });
           lab.textContent = Math.round(maxN * ticks[t]).toLocaleString('en-US');
           svg.appendChild(lab);
@@ -538,16 +647,17 @@
         }
         var area = d + ' L ' + x(points[points.length - 1].mde).toFixed(1) + ' ' + (T + ih) +
           ' L ' + x(points[0].mde).toFixed(1) + ' ' + (T + ih) + ' Z';
-        svg.appendChild(el('path', { d: area, fill: '#e23d2e', 'fill-opacity': 0.12 }));
-        svg.appendChild(el('path', { d: d, fill: 'none', stroke: '#1d1a16', 'stroke-width': 2 }));
+        svg.appendChild(el('path', { d: area, fill: '#990F3D', 'fill-opacity': 0.12 }));
+        svg.appendChild(el('path', { d: d, fill: 'none', stroke: '#000000', 'stroke-width': 2 }));
 
         var xs = [0.05, 0.15, 0.25, 0.40];
         for (var xi = 0; xi < xs.length; xi++) {
           if (xs[xi] < minM - 0.001 || xs[xi] > maxM + 0.001) continue;
           var tx = el('text', {
-            x: x(xs[xi]), y: 160, fill: '#6d6458',
+            x: x(xs[xi]), y: 160, fill: '#66605C',
             'font-size': 10, 'text-anchor': 'middle',
-            'font-family': 'system-ui, sans-serif'
+            'font-family': '"IBM Plex Sans", Helvetica, Arial, sans-serif',
+            'font-variant': 'tabular-nums'
           });
           tx.textContent = Math.round(xs[xi] * 100) + '%';
           svg.appendChild(tx);
@@ -557,7 +667,7 @@
           var cx = x(currentRel);
           svg.appendChild(el('line', {
             x1: cx, x2: cx, y1: T, y2: T + ih,
-            stroke: '#c9a227', 'stroke-width': 1, 'stroke-dasharray': '3 3'
+            stroke: '#990F3D', 'stroke-width': 1, 'stroke-dasharray': '3 3'
           }));
           var nearest = points[0];
           var best = Infinity;
@@ -567,7 +677,7 @@
           }
           svg.appendChild(el('circle', {
             cx: cx, cy: y(nearest.n), r: 5,
-            fill: '#ffd36a', stroke: '#1d1a16', 'stroke-width': 1.5
+            fill: '#990F3D', stroke: '#000000', 'stroke-width': 1.5
           }));
         }
       }
@@ -755,7 +865,7 @@
       form.addEventListener('submit', function (ev) {
         ev.preventDefault();
         recalc();
-        $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        $('results').scrollIntoView({ behavior: 'auto', block: 'start' });
       });
 
       $('copy').addEventListener('click', function () {
