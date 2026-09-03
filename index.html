@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>lift · plan the test before you peek</title>
-  <meta name="description" content="See how many visitors you need before an A/B test is real, and what peeking costs you." />
+  <title>lift</title>
+  <meta name="description" content="lift" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
   <style>
     /*
      * Palette from Financial Times Origami o-colors (core brand),
@@ -35,14 +35,12 @@
      *
      * Type ramp (px):
      *   wordmark h1     42  Source Serif 4  400
-     *   lede            17  Plex            400  mute  max-width 40em
-     *   section labels  11  Plex            500  tracking 0.12em  ink
-     *   field labels    13  Plex            500  ink
-     *   hints           12  Plex            400  mute
+     *   section labels  11  Noto Sans KR    500  tracking 0.12em  ink
+     *   field labels    13  Noto Sans KR    500  ink
      *   result .v       38  Source Serif 4  600  tabular-nums
-     *   buttons         13  Plex            500
-     *   footer          12  Plex            400  mute
-     *   body / UI       15  Plex            400  ink
+     *   buttons         13  Noto Sans KR    500
+     *   footer          12  Noto Sans KR    400  mute
+     *   body / UI       15  Noto Sans KR    400  ink
      */
     :root {
       color-scheme: light;
@@ -60,7 +58,7 @@
       --mute: #66605C;
       --line: #D8CDC2;
       --serif: "Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif;
-      --sans: "IBM Plex Sans", Helvetica, Arial, sans-serif;
+      --sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       --r: 0px;
       --r-field: 2px;
     }
@@ -91,13 +89,6 @@
       letter-spacing: 0;
       line-height: 1.1;
       margin: 0 0 8px;
-    }
-    .lede {
-      font-size: 17px;
-      line-height: 1.45;
-      color: var(--mute);
-      margin: 0 0 14px;
-      max-width: 40em;
     }
     .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
     .chip, .seg button, .kseg button {
@@ -166,12 +157,11 @@
       font-weight: 500;
       color: var(--ink);
     }
-    .field > span:not(.hint) {
+    .field > span {
       font-size: 13px;
       font-weight: 500;
       color: var(--ink);
     }
-    .hint { font-weight: 400; color: var(--mute); font-size: 12px; }
     input[type="number"] {
       width: 100%;
       border: 1px solid var(--line);
@@ -212,7 +202,6 @@
       border-left-color: var(--claret);
     }
     .toggle input { margin-top: 3px; accent-color: var(--claret); }
-    .toggle span { font-weight: 400; color: var(--mute); font-size: 12px; display: block; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .primary, .ghost {
       appearance: none;
@@ -369,57 +358,48 @@
   <div class="studio">
     <header>
       <h1>lift</h1>
-      <p class="lede">See how many visitors you need before an A/B test is real, and what peeking costs you.</p>
-      <div class="presets" id="presets" aria-label="Traffic presets"></div>
+      <div class="presets" id="presets" aria-label="프리셋"></div>
     </header>
 
     <div class="layout">
       <section class="panel" aria-labelledby="in-title">
-        <h2 id="in-title">Inputs</h2>
+        <h2 id="in-title">입력</h2>
         <form id="form" autocomplete="off">
           <label class="field">
-            Baseline conversion
-            <span class="hint">Control rate as a percent. SaaS signup example is 4%.</span>
+            기존 전환율
             <input id="p1Pct" name="p1Pct" type="number" min="0.01" max="99.99" step="0.01" value="4" />
           </label>
 
           <div class="row">
             <label class="field">
-              Minimum detectable effect
-              <span class="hint" id="mdeHint">Relative lift vs baseline. 15% of 4% → 4.60%.</span>
+              최소 감지 효과
               <input id="mdePct" name="mdePct" type="number" min="0.01" step="0.01" value="15" />
             </label>
             <div>
               <div class="field">
-                <span>MDE type</span>
-                <span class="hint">Relative is the usual marketer input.</span>
-                <div class="seg" id="mdeType" data-name="mdeType" role="group" aria-label="MDE type">
-                  <button type="button" data-value="relative" class="on">Relative %</button>
-                  <button type="button" data-value="absolute">Absolute pp</button>
+                <div class="seg" id="mdeType" data-name="mdeType" role="group" aria-label="상대 절대">
+                  <button type="button" data-value="relative" class="on">상대 %</button>
+                  <button type="button" data-value="absolute">절대 %p</button>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="field">
-            <span>Direction</span>
-            <span class="hint">Improvement tests p2 &gt; p1. Use drop when you expect a decline.</span>
-            <div class="seg" id="direction" data-name="direction" role="group" aria-label="Direction">
-              <button type="button" data-value="up" class="on">Improvement</button>
-              <button type="button" data-value="down">Drop</button>
+            <div class="seg" id="direction" data-name="direction" role="group" aria-label="상승 하락">
+              <button type="button" data-value="up" class="on">상승</button>
+              <button type="button" data-value="down">하락</button>
             </div>
           </div>
 
           <div class="row">
             <label class="field">
-              Daily visitors (total)
-              <span class="hint">Split equally across variants.</span>
+              하루 방문자
               <input id="dailyVisitors" name="dailyVisitors" type="number" min="0" step="1" value="800" />
             </label>
             <div class="field">
-              <span>Variants</span>
-              <span class="hint">1 control + k−1 treatments. k&gt;2 uses Bonferroni on α.</span>
-              <div class="kseg" id="variants" data-name="variants" role="group" aria-label="Variants">
+              <span>안 개수</span>
+              <div class="kseg" id="variants" data-name="variants" role="group" aria-label="안 개수">
                 <button type="button" data-value="2" class="on">2</button>
                 <button type="button" data-value="3">3</button>
                 <button type="button" data-value="4">4</button>
@@ -431,18 +411,16 @@
 
           <div class="row">
             <div class="field">
-              <span>Significance</span>
-              <span class="hint">Two-sided 95% is α = 0.05.</span>
-              <div class="seg" id="significance" data-name="significance" role="group">
+              <span>유의수준</span>
+              <div class="seg" id="significance" data-name="significance" role="group" aria-label="유의수준">
                 <button type="button" data-value="90">90%</button>
                 <button type="button" data-value="95" class="on">95%</button>
                 <button type="button" data-value="99">99%</button>
               </div>
             </div>
             <div class="field">
-              <span>Power</span>
-              <span class="hint">Chance of detecting a real effect of this size.</span>
-              <div class="seg" id="power" data-name="power" role="group">
+              <span>검정력</span>
+              <div class="seg" id="power" data-name="power" role="group" aria-label="검정력">
                 <button type="button" data-value="80" class="on">80%</button>
                 <button type="button" data-value="90">90%</button>
               </div>
@@ -450,53 +428,48 @@
           </div>
 
           <div class="field">
-            <span>Sidedness</span>
-            <span class="hint">One-sided uses z<sub>α</sub> instead of z<sub>α/2</sub> — smaller n, directional claim only.</span>
-            <div class="seg" id="sided" data-name="sided" role="group">
-              <button type="button" data-value="two" class="on">Two-sided</button>
-              <button type="button" data-value="one">One-sided</button>
+            <div class="seg" id="sided" data-name="sided" role="group" aria-label="양측 단측">
+              <button type="button" data-value="two" class="on">양측</button>
+              <button type="button" data-value="one">단측</button>
             </div>
           </div>
 
           <label class="toggle" id="peekWrap">
             <input type="checkbox" id="peeking" />
-            <div>
-              I will peek at results while the test runs
-              <span>Repeated looks inflate false positives. This is a warning, not a sequential design.</span>
-            </div>
+            <div>중간에 결과 보기</div>
           </label>
 
           <div class="actions">
-            <button class="primary" type="submit" id="calc">Calculate</button>
-            <button class="ghost" type="button" id="copy">Copy summary</button>
+            <button class="primary" type="submit" id="calc">계산</button>
+            <button class="ghost" type="button" id="copy">요약 복사</button>
           </div>
         </form>
       </section>
 
       <section class="panel" id="results" aria-live="polite" aria-labelledby="out-title">
-        <h2 id="out-title">Plan</h2>
+        <h2 id="out-title">결과</h2>
         <div id="error" class="err hidden"></div>
         <div id="ok">
           <div class="cards">
             <div class="card">
-              <div class="k">n per arm</div>
+              <div class="k">안당 n</div>
               <div class="v" id="nArm">—</div>
-              <div class="s" id="nArmSub">equal allocation</div>
+              <div class="s" id="nArmSub"></div>
             </div>
             <div class="card">
-              <div class="k">Total n</div>
+              <div class="k">전체 n</div>
               <div class="v" id="nTot">—</div>
-              <div class="s" id="nTotSub">all variants</div>
+              <div class="s" id="nTotSub"></div>
             </div>
             <div class="card">
-              <div class="k">Days to n</div>
+              <div class="k">일수</div>
               <div class="v" id="days">—</div>
-              <div class="s" id="daysSub">at current traffic</div>
+              <div class="s" id="daysSub"></div>
             </div>
             <div class="card">
-              <div class="k">Expected conversions</div>
+              <div class="k">예상 전환</div>
               <div class="v" id="conv">—</div>
-              <div class="s" id="convSub">control, over n per arm</div>
+              <div class="s" id="convSub"></div>
             </div>
           </div>
 
@@ -504,25 +477,23 @@
           <div class="note hidden" id="bonf"></div>
 
           <figure class="chart-wrap">
-            <figcaption>n per arm vs relative MDE at this baseline (5% → 40%)</figcaption>
-            <svg class="spark" id="spark" viewBox="0 0 440 168" role="img" aria-label="Sample size versus relative MDE"></svg>
+            <figcaption>상대 % 대비 안당 n (5% → 40%)</figcaption>
+            <svg class="spark" id="spark" viewBox="0 0 440 168" role="img" aria-label="상대 효과 대비 안당 n"></svg>
           </figure>
 
           <table class="sens" id="sens">
             <thead>
-              <tr><th>Rel. MDE</th><th>p2</th><th>n / arm</th><th>Days</th></tr>
+              <tr><th>상대 %</th><th>p2</th><th>안당 n</th><th>일</th></tr>
             </thead>
             <tbody></tbody>
           </table>
 
-          <div class="peek" id="peek">
-            <h3>Peeking risk</h3>
+          <div class="peek hidden" id="peek">
             <p id="peekBody"></p>
-            <p id="peekN"></p>
           </div>
 
           <details class="formula">
-            <summary>Formula</summary>
+            <summary>식</summary>
             <pre id="formula"></pre>
           </details>
         </div>
@@ -530,7 +501,7 @@
     </div>
 
     <footer>
-      MIT · <a href="https://promptprobe.github.io/lift/">promptprobe</a> · no data leaves the browser
+      MIT · <a href="https://promptprobe.github.io/lift/">promptprobe</a>
     </footer>
   </div>
 
@@ -586,20 +557,11 @@
         setSeg($('sided'), state.sided);
         $('peeking').checked = state.peeking;
         $('peekWrap').classList.toggle('on', state.peeking);
-        updateMdeHint(state);
-      }
-
-      function updateMdeHint(state) {
-        if (state.mdeType === 'absolute') {
-          $('mdeHint').textContent = 'Percentage points added to baseline. 1 pp of 5% → 6%.';
-        } else {
-          $('mdeHint').textContent = 'Relative lift vs baseline. 15% of 4% → 4.60%.';
-        }
       }
 
       function fmt(n) {
         if (n == null || !Number.isFinite(n)) return '—';
-        return Math.round(n).toLocaleString('en-US');
+        return Math.round(n).toLocaleString('ko-KR');
       }
 
       function pct(p, d) {
@@ -638,10 +600,10 @@
           var lab = el('text', {
             x: L - 6, y: yy + 3, fill: '#66605C',
             'font-size': 10, 'text-anchor': 'end',
-            'font-family': '"IBM Plex Sans", Helvetica, Arial, sans-serif',
+            'font-family': '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif',
             'font-variant': 'tabular-nums'
           });
-          lab.textContent = Math.round(maxN * ticks[t]).toLocaleString('en-US');
+          lab.textContent = Math.round(maxN * ticks[t]).toLocaleString('ko-KR');
           svg.appendChild(lab);
         }
 
@@ -660,7 +622,7 @@
           var tx = el('text', {
             x: x(xs[xi]), y: 160, fill: '#66605C',
             'font-size': 10, 'text-anchor': 'middle',
-            'font-family': '"IBM Plex Sans", Helvetica, Arial, sans-serif',
+            'font-family': '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif',
             'font-variant': 'tabular-nums'
           });
           tx.textContent = Math.round(xs[xi] * 100) + '%';
@@ -705,7 +667,7 @@
             ? [
               Math.round(mdEs[i] * 100) + '%',
               pct(r.p2, 2),
-              r.nPerVariant.toLocaleString('en-US'),
+              r.nPerVariant.toLocaleString('ko-KR'),
               r.days == null ? '—' : String(r.days)
             ]
             : [Math.round(mdEs[i] * 100) + '%', '—', '—', '—'];
@@ -738,64 +700,37 @@
         $('days').textContent = plan.days == null ? '—' : fmt(plan.days);
         var perArmTraffic = state.dailyVisitors > 0 ? Math.floor(state.dailyVisitors / plan.variants) : 0;
         $('daysSub').textContent = plan.days == null
-          ? 'add daily visitors'
-          : perArmTraffic.toLocaleString('en-US') + ' /arm /day';
+          ? '—'
+          : '안당 ' + perArmTraffic.toLocaleString('ko-KR') + '명/일';
         $('conv').textContent = fmt(plan.expectedControl);
-        $('convSub').textContent = 'control · treatment ~' + fmt(plan.expectedTreatment);
+        $('convSub').textContent = '기존 · 처리 ~' + fmt(plan.expectedTreatment);
 
         var rel = plan.relLift * 100;
         var absPp = plan.delta * 100;
-        var side = plan.sided === 'one' ? 'one-sided' : 'two-sided';
+        var side = plan.sided === 'one' ? '단측' : '양측';
         $('meta').innerHTML =
-          'Treatment rate <b>' + pct(plan.p2, 2) + '</b> vs control <b>' + pct(plan.p1, 2) + '</b>. ' +
-          'Absolute delta <b>' + absPp.toFixed(2) + ' pp</b>, relative ' +
-          (rel >= 0 ? 'lift' : 'drop') + ' <b>' + Math.abs(rel).toFixed(1) + '%</b>. ' +
-          Math.round((1 - plan.alpha) * 100) + '% ' + side + ', ' +
-          Math.round(plan.power * 100) + '% power. Equal split.';
+          '처리 <b>' + pct(plan.p2, 2) + '</b> · 기존 <b>' + pct(plan.p1, 2) + '</b> · ' +
+          absPp.toFixed(2) + '%p · 상대 ' +
+          (rel >= 0 ? '상승' : '하락') + ' <b>' + Math.abs(rel).toFixed(1) + '%</b> · ' +
+          side + ' ' + Math.round((1 - plan.alpha) * 100) + '% · 검정력 ' +
+          Math.round(plan.power * 100) + '%';
 
-        var bonf = $('bonf');
-        if (plan.comparisons > 1) {
-          bonf.classList.remove('hidden');
-          bonf.innerHTML = 'With <b>' + plan.variants + ' variants</b> (1 control + ' +
-            plan.comparisons + ' treatments) α is split Bonferroni-style: ' +
-            plan.alpha.toFixed(2).replace(/0+$/, '') + ' / ' + plan.comparisons +
-            ' = <b>' + plan.alphaAdj.toFixed(4).replace(/0+$/, '') + '</b>. ' +
-            'Sample size uses z<sub>α_adj' + (plan.sided === 'one' ? '' : '/2') + '</sub> = ' +
-            plan.zAlpha.toFixed(3) + ' instead of the two-variant z. ' +
-            'This is a simple multiplicity correction, not a Dunnett or hierarchical gate.';
-        } else {
-          bonf.classList.add('hidden');
-        }
+        $('bonf').classList.add('hidden');
+        $('bonf').textContent = '';
 
         var curve = ns.mdeCurve(ns.stateToPlanInput(state), 0.05, 0.40, 16);
         renderChart(curve, Math.abs(plan.relLift));
         renderSens(state, plan);
 
         var peek = $('peek');
-        peek.classList.toggle('warn', plan.peeking.enabled);
-        var fp = (plan.peeking.naiveFP * 100);
-        var looks = plan.peeking.looks;
         if (plan.peeking.enabled) {
-          $('peekBody').innerHTML =
-            'If you ran an independent ' + (plan.alpha * 100).toFixed(0) +
-            '% test on each of <b>' + looks + ' look' + (looks === 1 ? '' : 's') +
-            '</b> (one per day, capped conceptually at the run length), the chance of at least one false positive is about <b>' +
-            fp.toFixed(0) + '%</b> ≈ 1 − (1 − α)<sup>L</sup>. Looks are not independent; this is a sketch of the damage, not a p-value.';
-          $('peekN').innerHTML =
-            'A conservative always-valid fudge for ~5 interims uses a Pocock-like <b>1.44×</b> on n (1.2²; ~2.0× is too harsh). ' +
-            'That is <b>' + fmt(plan.peeking.nPerConservative) + ' per arm</b> (' +
-            fmt(plan.peeking.totalConservative) + ' total' +
-            (plan.peeking.daysConservative != null ? ', ~' + fmt(plan.peeking.daysConservative) + ' days' : '') +
-            '). This is not a full sequential / mSPRT design.';
+          peek.classList.remove('hidden');
+          peek.classList.add('warn');
+          $('peekBody').textContent = '중간에 보면 거짓양이 늘어납니다.';
         } else {
-          $('peekBody').innerHTML =
-            'Peeking is off, so the nominal α stays ' + plan.alpha +
-            '. If you instead peeked daily for ' + looks + ' day' + (looks === 1 ? '' : 's') +
-            ', a naive independent-test sketch would inflate false positives to about <b>' +
-            fp.toFixed(0) + '%</b>.';
-          $('peekN').innerHTML =
-            'A conservative Pocock-style 1.44× n for five interims would be <b>' +
-            fmt(plan.peeking.nPerConservative) + ' per arm</b>. Leave peeking off, or pre-commit to a sequential method.';
+          peek.classList.add('hidden');
+          peek.classList.remove('warn');
+          $('peekBody').textContent = '';
         }
 
         $('formula').textContent =
@@ -820,7 +755,6 @@
 
       function recalc() {
         var state = readState();
-        updateMdeHint(state);
         persist(state);
         render(ns.planTest(ns.stateToPlanInput(state)), state);
       }
@@ -875,19 +809,19 @@
       $('copy').addEventListener('click', function () {
         var text = lastSummary;
         function ok() {
-          $('copy').textContent = 'Copied';
+          $('copy').textContent = '복사됨';
           $('copy').classList.add('ok');
           setTimeout(function () {
-            $('copy').textContent = 'Copy summary';
+            $('copy').textContent = '요약 복사';
             $('copy').classList.remove('ok');
           }, 1400);
         }
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(ok).catch(function () {
-            window.prompt('Copy summary', text);
+            window.prompt('요약 복사', text);
           });
         } else {
-          window.prompt('Copy summary', text);
+          window.prompt('요약 복사', text);
         }
       });
 

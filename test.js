@@ -179,9 +179,9 @@ var curve = L.mdeCurve({ p1Pct: 4, significance: 95, power: 80, variants: 2, dai
 assert(curve.length >= 5, 'mdeCurve has points');
 assert(curve[0].n > curve[curve.length - 1].n, 'larger relative MDE needs fewer visitors');
 
-// 17. formatPlan is a non-empty English paragraph
+// 17. formatPlan is a non-empty Korean line
 var summary = L.formatPlan(planned);
-assert(typeof summary === 'string' && summary.indexOf('per arm') !== -1 && summary.indexOf('peek') !== -1,
+assert(typeof summary === 'string' && summary.indexOf('안당') !== -1 && summary.indexOf('중간에 보면') !== -1,
   'formatPlan mentions n and peeking');
 
 console.log('');
