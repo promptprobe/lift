@@ -98,10 +98,11 @@
     .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
     .chip, .seg button, .kseg button {
       appearance: none;
+      -webkit-appearance: none;
       border: 0;
       background: var(--wheat);
       color: var(--ink);
-      border-radius: var(--r);
+      border-radius: 0;
       padding: 6px 10px;
       font: 13px/1.2 var(--sans);
       font-weight: 500;
@@ -210,6 +211,8 @@
     .toggle span { font-weight: 400; color: var(--mute); font-size: 12px; display: block; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .primary, .ghost {
+      appearance: none;
+      -webkit-appearance: none;
       border: 0;
       border-radius: var(--r-field);
       padding: 8px 14px;
