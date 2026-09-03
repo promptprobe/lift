@@ -60,7 +60,7 @@ var DEFAULTS = {
 var PRESETS = [
   {
     id: 'saas',
-    label: 'SaaS signup 4%',
+    label: 'SaaS',
     p1Pct: 4,
     mdePct: 15,
     mdeType: 'relative',
@@ -69,7 +69,7 @@ var PRESETS = [
   },
   {
     id: 'ecom',
-    label: 'Ecom checkout 2.2%',
+    label: '쇼핑',
     p1Pct: 2.2,
     mdePct: 12,
     mdeType: 'relative',
@@ -78,7 +78,7 @@ var PRESETS = [
   },
   {
     id: 'lead',
-    label: 'Lead form 12%',
+    label: '콘텐츠',
     p1Pct: 12,
     mdePct: 10,
     mdeType: 'relative',
@@ -251,10 +251,10 @@ function resolveRates(input) {
   p1 = Number(p1);
 
   if (!Number.isFinite(p1)) {
-    return fail('Baseline conversion is required.');
+    return fail('기존 전환율을 넣으세요.');
   }
   if (p1 <= 0 || p1 >= 1) {
-    return fail('Baseline conversion must be between 0% and 100%, exclusive.');
+    return fail('기존 전환율은 0%와 100% 사이.');
   }
 
   var p2 = input.p2;
@@ -273,7 +273,7 @@ function resolveRates(input) {
     }
     mde = Number(mde);
     if (!Number.isFinite(mde) || mde <= 0) {
-      return fail('Minimum detectable effect must be greater than 0.');
+      return fail('최소 감지 효과는 0보다 큼.');
     }
 
     if (type === 'absolute') {
@@ -285,13 +285,13 @@ function resolveRates(input) {
 
   p2 = Number(p2);
   if (!Number.isFinite(p2)) {
-    return fail('Treatment conversion could not be computed.');
+    return fail('처리 전환율을 계산하지 못함.');
   }
   if (p2 <= 0 || p2 >= 1) {
-    return fail('Treatment conversion must stay between 0% and 100%, exclusive. Shrink the MDE or change direction.');
+    return fail('처리 전환율이 0%와 100% 사이여야 함. 효과를 줄이거나 방향을 바꾸세요.');
   }
   if (Math.abs(p2 - p1) === 0) {
-    return fail('MDE is zero: control and treatment rates are identical.');
+    return fail('효과가 0이라 두 안이 같음.');
   }
   return { ok: true, p1: p1, p2: p2 };
 }
@@ -319,20 +319,20 @@ function sampleSize(opts) {
   var p2 = Number(opts.p2);
 
   if (!isProportion(p1)) {
-    return fail('Baseline conversion must be between 0% and 100%, exclusive.');
+    return fail('기존 전환율은 0%와 100% 사이.');
   }
   if (!isProportion(p2)) {
-    return fail('Treatment conversion must be between 0% and 100%, exclusive.');
+    return fail('처리 전환율은 0%와 100% 사이.');
   }
 
   var delta = Math.abs(p2 - p1);
   if (!(delta > 0) || !Number.isFinite(delta)) {
-    return fail('MDE is zero: control and treatment rates are identical.');
+    return fail('효과가 0이라 두 안이 같음.');
   }
 
   var variants = opts.variants == null ? 2 : Number(opts.variants);
   if (!Number.isInteger(variants) || variants < 2 || variants > 6) {
-    return fail('Variants must be an integer from 2 to 6 (1 control + 1–5 treatments).');
+    return fail('안 개수는 2에서 6.');
   }
 
   var alpha;
@@ -345,12 +345,12 @@ function sampleSize(opts) {
     alpha = 0.05;
   }
   if (!(alpha > 0 && alpha < 1)) {
-    return fail('Significance / alpha must be between 0 and 1.');
+    return fail('유의수준이 범위를 벗어남.');
   }
 
   var power = opts.power == null ? 0.8 : asUnit(opts.power);
   if (!(power > 0 && power < 1)) {
-    return fail('Power must be between 0% and 100%, exclusive.');
+    return fail('검정력은 0%와 100% 사이.');
   }
 
   var sided = normalizeSided(opts.sided);
@@ -363,13 +363,13 @@ function sampleSize(opts) {
     zAlpha = zFromAlpha(alphaAdj, sided);
     zBeta = zFromPower(power);
   } catch (err) {
-    return fail(err.message || 'Could not compute z values.');
+    return fail(err.message || 'z를 계산하지 못함.');
   }
 
   var varSum = p1 * (1 - p1) + p2 * (1 - p2);
   var nRaw = (Math.pow(zAlpha + zBeta, 2) * varSum) / (delta * delta);
   if (!Number.isFinite(nRaw) || nRaw < 0) {
-    return fail('Sample size could not be computed from these rates.');
+    return fail('이 비율로는 n을 구하지 못함.');
   }
   var nPerVariant = Math.ceil(nRaw);
 
@@ -409,7 +409,7 @@ function planTest(input) {
 
   var daily = input.dailyVisitors == null ? 0 : Number(input.dailyVisitors);
   if (!Number.isFinite(daily) || daily < 0) {
-    return fail('Daily visitors must be 0 or a positive number.');
+    return fail('하루 방문자는 0 이상.');
   }
 
   var sized = sampleSize({
@@ -500,41 +500,29 @@ function mdeCurve(input, fromRel, toRel, steps) {
 function formatPlan(plan, extras) {
   extras = extras || {};
   if (!plan || !plan.ok) {
-    return plan && plan.error ? plan.error : 'Could not build a plan.';
+    return plan && plan.error ? plan.error : '결과를 만들지 못함.';
   }
   var sigPct = Math.round((1 - plan.alpha) * 100);
   var pwrPct = Math.round(plan.power * 100);
-  var side = plan.sided === 'one' ? 'one-sided' : 'two-sided';
+  var side = plan.sided === 'one' ? '단측' : '양측';
   var relPct = (plan.relLift * 100);
-  var dirWord = plan.relLift >= 0 ? 'lift' : 'drop';
-  var daysBit = plan.days == null
-    ? 'Add daily traffic to estimate calendar time.'
-    : 'About ' + plan.days + ' day' + (plan.days === 1 ? '' : 's') +
-      ' at ' + Math.round(plan.dailyVisitors) + ' visitors/day.';
-  var peekBit = '';
-  if (plan.peeking && plan.peeking.enabled) {
-    var fpPct = (plan.peeking.naiveFP * 100);
-    peekBit = ' You marked that you will peek; a naive independent-' +
-      sigLabel(plan.alpha) + ' test every day for ' + plan.peeking.looks +
-      ' look' + (plan.peeking.looks === 1 ? '' : 's') +
-      ' would inflate false positives to about ' + fpPct.toFixed(0) +
-      '%. A conservative Pocock-style 1.44× inflation (5 interims, not a full sequential design) raises n to ' +
-      plan.peeking.nPerConservative.toLocaleString('en-US') + ' per arm.';
-  }
-  return 'Plan: ' + plan.variants + '-variant test on a ' +
-    pct(plan.p1, 2) + ' baseline, looking for a ' +
-    abs(relPct).toFixed(Math.abs(relPct) >= 10 ? 0 : 1) + '% relative ' + dirWord +
-    ' (to ' + pct(plan.p2, 2) + '). At ' + sigPct + '% ' + side +
-    ' significance and ' + pwrPct + '% power you need ' +
-    plan.nPerVariant.toLocaleString('en-US') + ' visitors per arm (' +
-    plan.totalN.toLocaleString('en-US') + ' total). ' + daysBit +
-    ' Control should see about ' + Math.round(plan.expectedControl).toLocaleString('en-US') +
-    ' conversions over that n.' + peekBit +
-    (extras.bonferroni && plan.comparisons > 1
-      ? ' Bonferroni splits α by ' + plan.comparisons + ' comparison' +
-        (plan.comparisons === 1 ? '' : 's') + ' (α_adj = ' +
-        formatAlpha(plan.alphaAdj) + ').'
-      : '');
+  var dirWord = plan.relLift >= 0 ? '상승' : '하락';
+  var daysBit = plan.days == null ? '' : ' · ' + plan.days + '일';
+  var peekBit = (plan.peeking && plan.peeking.enabled)
+    ? ' 중간에 보면 거짓양이 늘어납니다.'
+    : '';
+  return '안 ' + plan.variants +
+    ' · 기존 ' + pct(plan.p1, 2) +
+    ' · 상대 ' + dirWord + ' ' +
+    abs(relPct).toFixed(Math.abs(relPct) >= 10 ? 0 : 1) + '%' +
+    ' (' + pct(plan.p2, 2) + ')' +
+    ' · ' + side + ' ' + sigPct + '%' +
+    ' · 검정력 ' + pwrPct + '%' +
+    ' · 안당 ' + plan.nPerVariant.toLocaleString('ko-KR') + '명' +
+    ' · 전체 ' + plan.totalN.toLocaleString('ko-KR') + '명' +
+    daysBit +
+    ' · 기존 전환 ' + Math.round(plan.expectedControl).toLocaleString('ko-KR') +
+    peekBit;
 }
 
 function sigLabel(alpha) {
