@@ -71,11 +71,15 @@
       font: 15px/1.5 var(--sans);
       color: var(--ink);
       background: var(--paper);
-      padding: 20px 16px 56px;
+      padding: 0;
       border-top: 3px solid var(--black);
     }
-    .studio { max-width: 920px; margin: 0 auto; }
+    .studio {
+      width: 100%;
+      padding: 20px 28px 56px;
+    }
     header {
+      text-align: left;
       padding-bottom: 16px;
       margin-bottom: 20px;
       border-bottom: 1px solid var(--line);
@@ -117,11 +121,11 @@
     }
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: 0 32px;
       align-items: start;
     }
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; gap: 0; }
     }
     .panel {
@@ -135,7 +139,7 @@
       border-left: 1px solid var(--line);
       padding-left: 32px;
     }
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       .panel + .panel {
         border-left: 0;
         padding-left: 0;
